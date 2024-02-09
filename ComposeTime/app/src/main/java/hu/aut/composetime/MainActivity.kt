@@ -41,7 +41,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
             modifier = modifier
         )
         Button(onClick = {
-            
+
         }) {
             Text(text = "Show time")
         }
