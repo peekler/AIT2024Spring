@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "hu.ait.tictactoe"
+    namespace = "hu.ait.simplecalculator"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "hu.ait.tictactoe"
+        applicationId = "hu.ait.simplecalculator"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -27,7 +27,7 @@ android {
         }
     }
     buildFeatures {
-        viewBinding = true
+        viewBinding=true
     }
 
     compileOptions {
