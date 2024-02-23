@@ -21,6 +21,10 @@ class MainActivity : AppCompatActivity() {
 
     public fun showMessage(msg: String) {
         binding.tvResult.text = msg
-        // show a Toas.. or Snackbar..
+        // show a Toast.. or Snackbar..
+    }
+
+    public fun isFlagModeOn() : Boolean {
+        return binding.cbFlag.isChecked
     }
 }

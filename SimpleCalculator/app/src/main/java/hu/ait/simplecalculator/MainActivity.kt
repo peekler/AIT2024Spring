@@ -2,6 +2,7 @@ package hu.ait.simplecalculator
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import hu.ait.simplecalculator.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -20,7 +21,7 @@ class MainActivity : AppCompatActivity() {
 
 
         binding.btnMinus.setOnClickListener {
-            calculateVale(Int::minus)
+            //calculateVale(Int::minus)
             calculateVale(::myCalc)
         }
     }
@@ -28,6 +29,8 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun myCalc(a: Int, b: Int) = 2 * a + b
+
+
 
     private fun calculateVale(op: (Int, Int) -> Int) {
         try {

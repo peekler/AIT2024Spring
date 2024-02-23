@@ -1,6 +1,8 @@
 package hu.ait.tictactoe.view
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -9,12 +11,17 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import hu.ait.tictactoe.MainActivity
+import hu.ait.tictactoe.R
 import hu.ait.tictactoe.model.TicTacToeModel
 
 class TicTacToeView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
 
     lateinit var paintBackground: Paint
     lateinit var paintLine: Paint
+
+    lateinit var paintText: Paint
+
+    var bitmapGrass: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.grass)
 
     init {
         paintBackground = Paint()
@@ -25,6 +32,18 @@ class TicTacToeView(context: Context?, attrs: AttributeSet?) : View(context, att
         paintLine.setColor(Color.WHITE)
         paintLine.style = Paint.Style.STROKE
         paintLine.strokeWidth = 5f
+
+        paintText = Paint()
+        paintText.setColor(Color.GREEN)
+        paintText.textSize = 100f
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        paintText.textSize = height / 3f
+
+        bitmapGrass = Bitmap.createScaledBitmap(
+            bitmapGrass, width/3, height/3, false)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -32,9 +51,13 @@ class TicTacToeView(context: Context?, attrs: AttributeSet?) : View(context, att
 
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paintBackground)
 
+        //canvas.drawBitmap(bitmapGrass, width/3f, height/3f, null)
+
         drawGameArea(canvas)
 
         drawPlayers(canvas)
+
+        canvas.drawText("5", 0f, height/3f, paintText)
     }
 
 
@@ -46,7 +69,10 @@ class TicTacToeView(context: Context?, attrs: AttributeSet?) : View(context, att
                     val centerY = (j * height / 3 + height / 6).toFloat()
                     val radius = height / 6 - 2
 
-                    canvas.drawCircle(centerX, centerY, radius.toFloat(), paintLine)
+                    //canvas.drawCircle(centerX, centerY, radius.toFloat(), paintLine)
+
+                    canvas.drawBitmap(bitmapGrass, (i * width / 3).toFloat(),
+                        (j * height / 3).toFloat(), null)
                 } else if (TicTacToeModel.getFieldContent(i, j) == TicTacToeModel.CROSS) {
                     canvas.drawLine((i * width / 3).toFloat(), (j * height / 3).toFloat(),
                         ((i + 1) * width / 3).toFloat(),
@@ -81,15 +107,23 @@ class TicTacToeView(context: Context?, attrs: AttributeSet?) : View(context, att
             val tX = event.x.toInt() / (width / 3)
             val tY = event.y.toInt() / (height / 3)
 
+            //check flag mode in MineSweeperView
+            if ((context as MainActivity).isFlagModeOn()) {
+                //..
+            } else {
+                //...
+            }
+
+
             if (tX < 3 && tY < 3 && TicTacToeModel.getFieldContent(tX, tY) == TicTacToeModel.EMPTY) {
                 TicTacToeModel.setFieldContent(tX, tY, TicTacToeModel.getNextPlayer())
                 TicTacToeModel.changeNextPlayer()
 
-                if (TicTacToeModel.getWinner()==TicTacToeModel.CROSS) {
-                    // show win..
-                    //access main activity..
-                    (context as MainActivity).showMessage("Cross has won")
+                var nextPlayer= "O"
+                if (TicTacToeModel.getNextPlayer() == TicTacToeModel.CROSS) {
+                    nextPlayer = "X"
                 }
+                (context as MainActivity).showMessage("Next player is: $nextPlayer")
 
                 invalidate()
             }

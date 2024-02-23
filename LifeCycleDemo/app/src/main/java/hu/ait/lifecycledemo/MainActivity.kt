@@ -3,27 +3,17 @@ package hu.ait.lifecycledemo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 
 class MainActivity : AppCompatActivity() {
 
-    var score = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_main)
-
-        if (savedInstanceState != null) {
-            score = savedInstanceState.getInt("KEY_SCORE")
-        }
-
         Log.d("TAG_LIFE", "onCreate called")
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt("KEY_SCORE", score)
-    }
 
     override fun onStart() {
         super.onStart()

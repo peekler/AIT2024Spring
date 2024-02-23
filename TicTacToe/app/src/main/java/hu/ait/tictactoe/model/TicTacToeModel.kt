@@ -13,6 +13,7 @@ object TicTacToeModel {
         shortArrayOf(EMPTY, EMPTY, EMPTY),
         shortArrayOf(EMPTY, EMPTY, EMPTY),
         shortArrayOf(EMPTY, EMPTY, EMPTY))
+
     fun resetModel() {
         for (i in 0..2) {
             for (j in 0..2) {
