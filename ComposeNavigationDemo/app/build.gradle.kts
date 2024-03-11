@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "hu.ait.highlowgame"
+    namespace = "hu.ait.composenavigationdemo"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "hu.ait.highlowgame"
+        applicationId = "hu.ait.composenavigationdemo"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -59,8 +59,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -68,4 +66,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.navigation.compose)
 }
