@@ -1,14 +1,18 @@
 package hu.ait.tododemo.data
 
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import hu.ait.tododemo.R
 
+@Entity(tableName = "todotable")
 data class TodoItem(
-    val id: String,
-    val title:String,
-    val description:String,
-    val createDate:String,
-    var priority:TodoPriority,
-    var isDone: Boolean
+    @PrimaryKey(autoGenerate = true) var id: Int = 0,
+    @ColumnInfo(name = "title") val title:String,
+    @ColumnInfo(name = "description") val description:String,
+    @ColumnInfo(name = "createDate") val createDate:String,
+    @ColumnInfo(name = "priority") var priority:TodoPriority,
+    @ColumnInfo(name = "isDone") var isDone: Boolean
 )
 
 enum class TodoPriority {
