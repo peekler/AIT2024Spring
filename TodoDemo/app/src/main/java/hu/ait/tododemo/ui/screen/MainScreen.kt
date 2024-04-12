@@ -36,6 +36,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -49,20 +50,26 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    todoViewModel: TodoViewModel = viewModel(),
+    todoViewModel: TodoViewModel = hiltViewModel(),
     onNavigateToSummary: (Int, Int) -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
     var showAddDialog by rememberSaveable {
         mutableStateOf(false)
     }
@@ -89,10 +96,12 @@ fun MainScreen(
                         Icon(Icons.Filled.Delete, null)
                     }
                     IconButton(onClick = {
-                        onNavigateToSummary(
-                            todoViewModel.getAllTodoNum(),
-                            todoViewModel.getImportantTodoNum()
-                        )
+                        coroutineScope.launch {
+                            onNavigateToSummary(
+                                todoViewModel.getAllTodoNum(),
+                                todoViewModel.getImportantTodoNum()
+                            )
+                        }
                     }) {
                         Icon(Icons.Filled.Info, null)
                     }
@@ -120,21 +129,42 @@ fun TodoListContent(
     todoViewModel: TodoViewModel,
     onNavigateToSummary: (Int, Int) -> Unit
 ) {
+    val todoList by todoViewModel.getAllToDoList().collectAsState(emptyList())
+
+    var todoToEdit: TodoItem? by rememberSaveable {
+        mutableStateOf(null)
+    }
+    var showEditTodoDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     Column(
         modifier = modifier
     ) {
         // show TodoItems from the ViewModel in a LayzColumn
-        if (todoViewModel.getAllToDoList().isEmpty()) {
+        if (todoList.isEmpty()) {
             Text(text = "No items")
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(todoViewModel.getAllToDoList()) {
+                items(todoList) {
                     TodoCard(it,
                         onTodoCheckChange = { checkValue ->
                             todoViewModel.changeTodoState(it, checkValue)
                         },
-                        onRemoveItem = { todoViewModel.removeTodoItem(it) }
+                        onRemoveItem = { todoViewModel.removeTodoItem(it) },
+                        onEditItem = {
+                            todoToEdit = it
+                            showEditTodoDialog = true
+                        }
                     )
+                }
+            }
+
+            if (showEditTodoDialog) {
+                AddNewTodoDialog(todoViewModel = todoViewModel,
+                    todoToEdit = todoToEdit,
+                    ) {
+                    showEditTodoDialog = false
                 }
             }
         }
@@ -145,7 +175,8 @@ fun TodoListContent(
 fun TodoCard(
     todoItem: TodoItem,
     onTodoCheckChange: (Boolean) -> Unit = {},
-    onRemoveItem: () -> Unit = {}
+    onRemoveItem: () -> Unit = {},
+    onEditItem: (TodoItem) -> Unit = {}
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
@@ -160,7 +191,9 @@ fun TodoCard(
         modifier = Modifier.padding(5.dp)
     ) {
         Column(
-            modifier = Modifier.padding(20.dp).animateContentSize()
+            modifier = Modifier
+                .padding(20.dp)
+                .animateContentSize()
         ) {
 
 
@@ -183,6 +216,15 @@ fun TodoCard(
                 Checkbox(
                     checked = todoItem.isDone,
                     onCheckedChange = { onTodoCheckChange(it) }
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Icon(
+                    imageVector = Icons.Filled.Edit,
+                    contentDescription = "Edit",
+                    modifier = Modifier.clickable {
+                        onEditItem(todoItem)
+                    },
+                    tint = Color.Blue
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Icon(
@@ -216,16 +258,23 @@ fun TodoCard(
 @Composable
 fun AddNewTodoDialog(
     todoViewModel: TodoViewModel,
+    todoToEdit: TodoItem? = null,
     onDismissRequest: () -> Unit
 ) {
     var todoTitle by rememberSaveable {
-        mutableStateOf("")
+        mutableStateOf(todoToEdit?.title ?: "")
     }
     var todoDescription by rememberSaveable {
-        mutableStateOf("")
+        mutableStateOf(todoToEdit?.description ?: "")
     }
     var todoImportant by rememberSaveable {
-        mutableStateOf(false)
+        mutableStateOf(
+            if (todoToEdit != null) {
+                todoToEdit.priority == TodoPriority.HIGH
+            } else {
+                false
+            }
+        )
     }
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
@@ -239,7 +288,7 @@ fun AddNewTodoDialog(
                 Modifier.padding(16.dp)
             ) {
                 Text(
-                    text = "Add Todo",
+                    text = if (todoToEdit == null)  "Add Todo" else "Edit Todo",
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentSize(Alignment.Center),
@@ -268,19 +317,28 @@ fun AddNewTodoDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = {
-                        todoViewModel.addTodoList(
-                            TodoItem(
-                                id = "0",
+                        if (todoToEdit == null) {
+                            todoViewModel.addTodoList(
+                                TodoItem(
+                                    title = todoTitle,
+                                    description = todoDescription,
+                                    createDate = Date(System.currentTimeMillis()).toString(),
+                                    priority = if (todoImportant) TodoPriority.HIGH else TodoPriority.NORMAL,
+                                    isDone = false
+                                )
+                            )
+                        } else {
+                            val editedTodo = todoToEdit.copy(
                                 title = todoTitle,
                                 description = todoDescription,
-                                createDate = Date(System.currentTimeMillis()).toString(),
-                                priority = if (todoImportant) TodoPriority.HIGH else TodoPriority.NORMAL,
-                                isDone = false
+                                priority = if (todoImportant)
+                                    TodoPriority.HIGH else TodoPriority.NORMAL,
                             )
-                        )
+                            todoViewModel.editTodoItem(editedTodo)
+                        }
                         onDismissRequest()
                     }) {
-                        Text(text = "Add")
+                        Text(text = "Save")
                     }
                     TextButton(onClick = { onDismissRequest() }) {
                         Text(text = "Cancel")
