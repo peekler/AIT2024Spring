@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1086094077105",
+    "project_id": "aitforum2024springpeter",
+    "storage_bucket": "aitforum2024springpeter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1086094077105:android:0f27ddbc5acf62fff24690",
+        "android_client_info": {
+          "package_name": "hu.bme.aut.aitforum"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_7gw5Rr2Bebr76Wc5PSbtEctGZD0ysoU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
