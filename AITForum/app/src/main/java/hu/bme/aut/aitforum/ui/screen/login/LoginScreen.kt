@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -32,15 +33,20 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LoginScreen(
-    loginViewModel: LoginViewModel = viewModel()
+    loginViewModel: LoginViewModel = viewModel(),
+    onLoginSuccess: ()->Unit = {}
 ) {
     var showPassword by rememberSaveable { mutableStateOf(false) }
     var email by rememberSaveable { mutableStateOf("peter@ait.hu") }
     var password by rememberSaveable { mutableStateOf("123456") }
+
+    val coroutineScope = rememberCoroutineScope()
 
     Box() {
         Text(
@@ -96,7 +102,13 @@ fun LoginScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 OutlinedButton(onClick = {
-                    //
+                    coroutineScope.launch {
+                        val result = loginViewModel.loginUser(email, password)
+                        if (result?.user != null) {
+                            onLoginSuccess()
+                        }
+                    }
+
                 }) {
                     Text(text = "Login")
                 }
@@ -114,6 +126,7 @@ fun LoginScreen(
                 .padding(bottom = 50.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             when (loginViewModel.loginUiState) {
                 is LoginUiState.Init -> {}
                 is LoginUiState.Loading -> CircularProgressIndicator()
