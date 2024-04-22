@@ -64,7 +64,11 @@ fun NavGraph(
             )
         }
         composable(Screen.WritePost.route) {
-            WritePostScreen()
+            WritePostScreen(
+                onNavigateWhenSuccess = {
+                    navController.navigate(Screen.Messages.route)
+                }
+            )
         }
     }
 }
