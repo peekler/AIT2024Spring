@@ -19,7 +19,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import hu.bme.aut.httpretrofitdemo.data.RoverPhotos
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -80,7 +79,7 @@ fun ResultScreen(roverPhotsResult: RoverPhotos) {
         modifier = Modifier.fillMaxWidth()
     ) {
         items(roverPhotsResult.photos!!) {
-            RowerPhotCard(rowerName = it!!.rover!!.name!!,
+            RoverPhotoCard(roverName = it!!.rover!!.name!!,
                 earthDate = it!!.earthDate!!,
                 photoUrl = it!!.imgSrc!!)
         }
@@ -89,8 +88,8 @@ fun ResultScreen(roverPhotsResult: RoverPhotos) {
 
 
 @Composable
-fun RowerPhotCard (
-    rowerName: String,
+fun RoverPhotoCard (
+    roverName: String,
     earthDate: String,
     photoUrl: String
 ) {
@@ -111,7 +110,7 @@ fun RowerPhotCard (
         ) {
 
             Text(
-                text = rowerName
+                text = roverName
             )
             Text(
                 text = earthDate
