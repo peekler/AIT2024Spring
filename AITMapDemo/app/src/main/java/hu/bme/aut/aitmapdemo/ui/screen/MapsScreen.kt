@@ -1,7 +1,10 @@
 package hu.bme.aut.aitmapdemo.ui.screen
 
 import android.Manifest
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
+import android.os.Build
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
@@ -12,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +40,7 @@ import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import hu.bme.aut.aitmapdemo.R
 import kotlinx.coroutines.launch
+import java.util.Locale
 import java.util.Random
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -43,6 +48,10 @@ import java.util.Random
 fun MapsScreen(
     mapViewModel: MapViewModel = hiltViewModel()
 ) {
+    var geocodeText by rememberSaveable {
+        mutableStateOf("")
+    }
+
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     var cameraState = rememberCameraPositionState {
@@ -86,7 +95,8 @@ fun MapsScreen(
                     Text(text = "Start location monitoring")
                 }
                 Text(
-                    text = "Location: ${getLocationText(mapViewModel.locationState.value)}"
+                    text = "Location: " +
+                            "${getLocationText(mapViewModel.locationState.value)}"
                 )
             }
 
@@ -115,6 +125,8 @@ fun MapsScreen(
                     mapType = if (isSatellite) MapType.SATELLITE else MapType.NORMAL
                 )
             })
+        
+        Text(text = geocodeText)
 
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
@@ -156,7 +168,36 @@ fun MapsScreen(
                 Marker(
                     state = MarkerState(position = position),
                     title = "Marker X",
-                    snippet = "Marker info"
+                    snippet = "Marker info",
+                    onClick = {
+                        val geocoder = Geocoder(context, Locale.getDefault())
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                           
+                            geocoder.getFromLocation(
+                                it.position.latitude,
+                                it.position.longitude,
+                                3,
+                                object : Geocoder.GeocodeListener {
+                                    override fun onGeocode(addrs: MutableList<Address>) {
+                                        val addr =
+                                            "${addrs[0].getAddressLine(0)}, ${
+                                                addrs[0].getAddressLine(
+                                                    1
+                                                )
+                                            }, ${addrs[0].getAddressLine(2)}"
+
+                                        geocodeText = addr
+                                    }
+
+                                    override fun onError(errorMessage: String?) {
+                                        geocodeText = errorMessage!!
+                                        super.onError(errorMessage)
+
+                                    }
+                                })
+                        }
+                        true
+                    }
                 )
             }
 
@@ -178,6 +219,8 @@ fun MapsScreen(
 }
 
 fun getLocationText(location: Location?): String {
+
+
     return """
        Lat: ${location?.latitude}
        Lng: ${location?.longitude}

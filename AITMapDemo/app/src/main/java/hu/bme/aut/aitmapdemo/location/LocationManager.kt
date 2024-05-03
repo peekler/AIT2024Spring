@@ -45,6 +45,7 @@ class LocationManager @Inject constructor(
             locationRequest, callBack, Looper.getMainLooper())
 
         // Suspends the current coroutine until the channel is either closed or cancelled and invokes the given block before resuming the coroutine.
-        awaitClose { fusedLocationProviderClient.removeLocationUpdates(callBack) }
+        awaitClose {
+            fusedLocationProviderClient.removeLocationUpdates(callBack) }
     }
 }
