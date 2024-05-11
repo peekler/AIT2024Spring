@@ -73,9 +73,9 @@ fun MapsScreen(
             MapProperties(
                 mapType = MapType.NORMAL,
                 isTrafficEnabled = true,
-                //mapStyleOptions = MapStyleOptions.loadRawResourceStyle(
-                //    context, R.raw.mymapstyle
-                //)
+                mapStyleOptions = MapStyleOptions.loadRawResourceStyle(
+                    context, R.raw.mymapstyle
+                )
             )
         )
     }
@@ -169,6 +169,7 @@ fun MapsScreen(
                     state = MarkerState(position = position),
                     title = "Marker X",
                     snippet = "Marker info",
+
                     onClick = {
                         val geocoder = Geocoder(context, Locale.getDefault())
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
